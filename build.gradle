@@ -1,0 +1,63 @@
+plugins {
+	id 'org.springframework.boot' version '2.7.0'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'org.liquibase.gradle' version '2.0.4'
+}
+
+group = 'xyz.dvnlabs'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'org.postgresql:r2dbc-postgresql'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+
+	implementation("org.projectlombok:lombok:1.18.24")
+	annotationProcessor("org.projectlombok:lombok:1.18.24")
+
+	testCompileOnly ("org.projectlombok:lombok:1.18.24")
+	testAnnotationProcessor ("org.projectlombok:lombok:1.18.24")
+
+	implementation("org.liquibase:liquibase-core")
+	implementation("org.springdoc:springdoc-openapi-ui:1.6.9")
+	implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.9")
+
+	liquibaseRuntime("org.liquibase:liquibase-core")
+	//liquibaseRuntime("org.liquibase:liquibase-groovy-dsl")
+	//liquibaseRuntime("info.picocli:picocli")
+	liquibaseRuntime("org.postgresql:postgresql")
+
+}
+
+
+Properties props = new Properties()
+file("src/main/resources/application.properties").withInputStream {
+	props.load(it)
+}
+
+
+liquibase {
+	activities {
+		main {
+			changeLogFile "src/main/resources/db/db.changelog-master.sql"
+			url "jdbc:postgresql://localhost:5432/nostra"
+			username "postgres"
+			password "12345678"
+		}
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
